@@ -1,7 +1,7 @@
 package eta.ipaddrcounter.task.queued;
 
 import eta.ipaddrcounter.file.FastByteBuffer;
-import eta.ipaddrcounter.task.FileChunkProcessor;
+import eta.ipaddrcounter.concurrency.ThreadWasInterrupted;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class NewLineAlignedBufferProducer implements Runnable {
             throw new UncheckedIOException(e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("thread was interrupted");
+            throw new ThreadWasInterrupted();
         }
     }
 
@@ -58,6 +58,10 @@ public class NewLineAlignedBufferProducer implements Runnable {
             int leftoverSize = 0;
             long currentPos = startOffset;
             while (currentPos < endOffset) {
+                if (Thread.currentThread().isInterrupted()) {
+                    throw new ThreadWasInterrupted();
+                }
+                
                 FastByteBuffer buffer = freeBuffers.take();
                 buffer.length = 0;
 

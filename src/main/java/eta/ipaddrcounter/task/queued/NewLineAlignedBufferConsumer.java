@@ -1,5 +1,6 @@
 package eta.ipaddrcounter.task.queued;
 
+import eta.ipaddrcounter.concurrency.ThreadWasInterrupted;
 import eta.ipaddrcounter.file.BytesParser;
 import eta.ipaddrcounter.file.FastByteBuffer;
 import eta.ipaddrcounter.task.FileChunkProcessor;
@@ -22,8 +23,17 @@ public class NewLineAlignedBufferConsumer implements Runnable {
 
     @Override
     public void run() {
-        try {
-            while (true) {
+        runLoop();
+        parser.afterLastBuffer();
+    }
+
+    private void runLoop() {
+        while (true) {
+            if (Thread.currentThread().isInterrupted()) {
+                throw new ThreadWasInterrupted();
+            }
+            try {
+                
                 FastByteBuffer buffer = workQueue.take();
                 if (buffer == NewLineAlignedBufferProducer.POISON_PILL) {
                     break;
@@ -31,11 +41,11 @@ public class NewLineAlignedBufferConsumer implements Runnable {
                 parser.parseBuffer(buffer);
                 buffer.length = 0;
                 freeBuffers.put(buffer);
+                
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new ThreadWasInterrupted();
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("thread was interrupted");
         }
-        parser.afterLastBuffer();
     }
 }
