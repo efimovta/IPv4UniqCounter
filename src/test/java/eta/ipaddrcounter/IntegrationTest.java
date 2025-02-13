@@ -1,0 +1,46 @@
+package eta.ipaddrcounter;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * Integration test that generates a ~100MB file with 100,000 unique IP addresses,
+ * then uses the SimpleIPv4UniqCounter to count the unique addresses.
+ *
+ * This test uses JUnit Jupiter's {@code @TempDir} to create a temporary directory for the generated file.
+ */
+public class IntegrationTest {
+
+    @TempDir
+    Path tempDir;
+
+    @Test
+    public void testSimpleCounter() throws Exception {
+        Path tempFile = tempDir.resolve("generated_ips.txt");
+        
+        long fileSizeMb = 100;  // 1GB
+        int uniqCount = 100_000;
+        TestFileGenerator.generateTestFile(tempFile, fileSizeMb, uniqCount);
+        
+        int result = new SimpleIPv4UniqCounter().countUniqIPv4AtFile(tempFile);
+        
+        assertEquals(uniqCount, result, "The counter should detect 100,000 unique IP addresses");
+    }
+
+    @Test
+    public void testWithIOSeparation() throws Exception {
+        Path tempFile = tempDir.resolve("generated_ips.txt");
+
+        long fileSizeMb = 100;  // 1GB
+        int uniqCount = 100_000;
+        TestFileGenerator.generateTestFile(tempFile, fileSizeMb, uniqCount);
+
+        int result = new IOSeparateIPv4UniqCounter().countUniqIPv4AtFile(tempFile);
+
+        assertEquals(uniqCount, result, "The counter should detect 100,000 unique IP addresses");
+    }
+}
