@@ -7,12 +7,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Integration test that generates a ~100MB file with 100,000 unique IP addresses,
- * then uses the SimpleIPv4UniqCounter to count the unique addresses.
- *
- * This test uses JUnit Jupiter's {@code @TempDir} to create a temporary directory for the generated file.
- */
+
 public class IntegrationTest {
 
     @TempDir
