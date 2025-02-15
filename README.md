@@ -29,6 +29,7 @@ Use an `AtomicIntegerArray` as a bitmap with CAS support to efficiently count un
 - Uniq ip count: 1 000 000 000
 - Memory: ~570mb
 - Time: 1 minute 11 seconds (+/- 11sec)
+  - Time with performance mode: ~21 seconds 
 - CPU Intel(R) Core(TM) i9-14900HX Base speed:	2,20 GHz  Cores: 8 (Logical processors: 16)
 - SSD SAMSUNG MZVL21T0HCLR-00BL2
 
